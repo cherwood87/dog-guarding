@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Resource Guarding Course Website
 
 A comprehensive online course for dog owners dealing with resource guarding behavior in their pets.
@@ -81,3 +82,6 @@ Educational use only. Please respect the intellectual property and training meth
 ---
 
 *Created for dog owners committed to building safer, happier relationships with their pets.*
+=======
+# Resolving-Resource-Guarding
+>>>>>>> d2a45aa5c30d43bbdfa954f07bb40c361eeb2fe1
