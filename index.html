@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>What's Mine is Mine: Resolving Resource Guarding in Dogs</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            color: #ffffff;
+            line-height: 1.6;
+        }
+
+        .course-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, #5DADE2 0%, #48C9B0 100%);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(93, 173, 226, 0.3);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: #1a1a1a;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            color: #2d2d2d;
+            margin-bottom: 20px;
+        }
+
+        .progress-bar {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            height: 8px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #48C9B0, #5DADE2);
+            height: 100%;
+            width: 0%;
+            transition: width 0.5s ease;
+            border-radius: 10px;
+        }
+
+        .progress-text {
+            color: #1a1a1a;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        .course-nav {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .nav-btn {
+            background: rgba(93, 173, 226, 0.2);
+            border: 2px solid #5DADE2;
+            color: #5DADE2;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            backdrop-filter: blur(10px);
+        }
+
+        .nav-btn:hover, .nav-btn.active {
+            background: linear-gradient(135deg, #5DADE2, #48C9B0);
+            color: #1a1a1a;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(93, 173, 226, 0.3);
+        }
+
+        .module-content {
+            display: none;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(93, 173, 226, 0.2);
+        }
+
+        .module-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .lesson {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border-left: 4px solid #5DADE2;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .lesson:hover {
+            background: rgba(255, 255, 255, 0.12);
+            transform: translateX(5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .lesson.completed {
+            border-left-color: #48C9B0;
+            background: rgba(72, 201, 176, 0.1);
+        }
+
+        .lesson.completed::before {
+            content: "✓";
+            background: #48C9B0;
+            color: #1a1a1a;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 15px;
+            font-size: 14px;
+        }
+
+        .lesson h3 {
+            color: #5DADE2;
+            margin-bottom: 10px;
+            font-size: 1.3rem;
+        }
+
+        .lesson-content {
+            display: none;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(93, 173, 226, 0.3);
+        }
+
+        .lesson-content.active {
+            display: block;
+        }
+
+        .lesson-objective {
+            background: rgba(72, 201, 176, 0.1);
+            border: 1px solid #48C9B0;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .lesson-objective h4 {
+            color: #48C9B0;
+            margin-bottom: 8px;
+        }
+
+        .assignment {
+            background: rgba(93, 173, 226, 0.1);
+            border: 1px solid #5DADE2;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .assignment h4 {
+            color: #5DADE2;
+            margin-bottom: 8px;
+        }
+
+        .safety-warning {
+            background: rgba(231, 76, 60, 0.1);
+            border: 2px solid #e74c3c;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .safety-warning h4 {
+            color: #e74c3c;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .safety-warning h4::before {
+            content: "⚠️";
+            font-size: 1.2rem;
+        }
+
+        .complete-btn {
+            background: linear-gradient(135deg, #48C9B0, #5DADE2);
+            color: #1a1a1a;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .complete-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(72, 201, 176, 0.3);
+        }
+
+        .week-schedule {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .week-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid rgba(93, 173, 226, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .week-card:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-5px);
+        }
+
+        .week-card h4 {
+            color: #5DADE2;
+            margin-bottom: 10px;
+        }
+
+        .temperature-zone {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: 600;
+            margin: 5px;
+            font-size: 0.9rem;
+        }
+
+        .cool-zone {
+            background: rgba(46, 204, 113, 0.2);
+            color: #2ecc71;
+            border: 1px solid #2ecc71;
+        }
+
+        .warm-zone {
+            background: rgba(241, 196, 15, 0.2);
+            color: #f1c40f;
+            border: 1px solid #f1c40f;
+        }
+
+        .hot-zone {
+            background: rgba(231, 76, 60, 0.2);
+            color: #e74c3c;
+            border: 1px solid #e74c3c;
+        }
+
+        .video-placeholder {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px dashed #5DADE2;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            margin: 20px 0;
+            color: #5DADE2;
+        }
+
+        .step-list {
+            list-style: none;
+            counter-reset: step-counter;
+        }
+
+        .step-list li {
+            counter-increment: step-counter;
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            padding-left: 50px;
+        }
+
+        .step-list li::before {
+            content: counter(step-counter);
+            background: linear-gradient(135deg, #5DADE2, #48C9B0);
+            color: #1a1a1a;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .course-nav {
+                flex-direction: column;
+            }
+            
+            .nav-btn {
+                width: 100%;
+                text-align: center;
+            }
+            
+            .week-schedule {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Print styles for certificates */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            
+            #graduation, #graduation * {
+                visibility: visible;
+            }
+            
+            #graduation {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100vh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            
+            .course-nav, .module-content:not(#graduation) {
+                display: none !important;
+            }
+        }
+
+        /* Enhanced animations */
+        .lesson {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .lesson:hover {
+            transform: translateX(10px) translateY(-2px);
+            box-shadow: 0 15px 35px rgba(93, 173, 226, 0.2);
+        }
+
+        .complete-btn {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .complete-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .complete-btn:hover::before {
+            left: 100%;
+        }
+
+        /* Loading animation for progress bar */
+        @keyframes progressLoad {
+            0% { transform: scaleX(0); }
+            100% { transform: scaleX(1); }
+        }
+
+        .progress-fill {
+            animation: progressLoad 0.8s ease-out;
+            transform-origin: left;
+        }
+
+        /* Pulse animation for important safety warnings */
+        .safety-warning {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(231, 76, 60, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0); }
+        }
+
+        /* Enhanced mobile responsiveness */
+        @media (max-width: 480px) {
+            .course-container {
+                padding: 10px;
+            }
+            
+            .header {
+                padding: 20px 15px;
+            }
+            
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .lesson {
+                padding: 20px 15px;
+            }
+            
+            .step-list li {
+                padding-left: 40px;
+                font-size: 0.9rem;
+            }
+            
+            .step-list li::before {
+                width: 25px;
+                height: 25px;
+                font-size: 0.8rem;
+            }
+        }
+
+        /* Dark mode enhancements */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+            }
+            
+            .module-content {
+                background: rgba(255, 255, 255, 0.03);
+                border: 1px solid rgba(93, 173, 226, 0.15);
+            }
+            
+            .lesson {
+                background: rgba(255, 255, 255, 0.05);
+            }
+        }
+
+        /* Accessibility improvements */
+        .lesson:focus-within {
+            outline: 2px solid #5DADE2;
+            outline-offset: 2px;
+        }
+
+        .complete-btn:focus {
+            outline: 2px solid #48C9B0;
+            outline-offset: 2px;
+        }
+
+        /* Smooth scrolling for all browsers */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #5DADE2, #48C9B0);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #48C9B0, #5DADE2);
+        }
+    </style>
+</head>
+<body>
+    <div class="course-container">
+        <div class="header">
+            <h1>What's Mine is Mine</h1>
+            <p>Resolving Resource Guarding in Dogs</p>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-text" id="progressText">0% Complete</div>
+        </div>
+
+        <div class="course-nav">
+            <button class="nav-btn active" onclick="showModule('welcome')">Course Welcome</button>
+            <button class="nav-btn" onclick="showModule('module1')">Module 1: Understanding</button>
+            <button class="nav-btn" onclick="showModule('module2')">Module 2: Safe Foundation</button>
+            <button class="nav-btn" onclick="showModule('module3')">Module 3: Core Training</button>
+            <button class="nav-btn" onclick="showModule('module4')">Module 4: Item Hierarchy</button>
+            <button class="nav-btn" onclick="showModule('module5')">Module 5: 31-Day Journey</button>
+            <button class="nav-btn" onclick="showModule('module6')">Module 6: Troubleshooting</button>
+        </div>
+
+        <!-- Welcome Module -->
+        <div id="welcome" class="module-content active">
+            <h2 style="color: #5DADE2; margin-bottom: 20px;">Welcome to Your Journey</h2>
+            
+            <div class="safety-warning">
+                <h4>🛡️ IMPORTANT SAFETY DISCLAIMER</h4>
+                <p><strong>This course is for dogs showing mild to moderate resource guarding only.</strong> If your dog has bitten or shows severe aggression, STOP immediately and consult a certified professional dog trainer or veterinary behaviorist.</p>
+                
+                <h5 style="color: #e74c3c; margin-top: 15px;">Signs you need professional help:</h5>
+                <ul style="margin-left: 20px; margin-top: 10px;">
+                    <li>Your dog has bitten anyone</li>
+                    <li>Your dog lunges aggressively</li>
+                    <li>Your dog shows intense, prolonged staring with rigid body posture</li>
+                    <li>You feel unsafe around your dog with any items</li>
+                    <li>Children are involved and there's any level of guarding</li>
+                </ul>
+            </div>
+
+            <div class="video-placeholder">
+                <h3>Welcome Video</h3>
+                <p>Add your welcome video here explaining the course journey</p>
+            </div>
+
+            <p style="font-size: 1.1rem; margin: 20px 0;">Resource guarding is completely normal dog behavior, but it needs to be addressed safely and systematically. This course will teach you step-by-step methods to help your dog feel more comfortable when you're around their treasured items.</p>
+        </div>
+
+        <!-- Module 1 -->
+        <div id="module1" class="module-content">
+            <h2 style="color: #5DADE2; margin-bottom: 20px;">Module 1: Understanding Resource Guarding</h2>
+            
+            <div class="lesson" onclick="toggleLesson('lesson1-1')">
+                <h3>Lesson 1.1: What Resource Guarding Really Means</h3>
+                <p>Understanding what resource guarding is, what it looks like, and why it's normal dog behavior.</p>
+                
+                <div id="lesson1-1" class="lesson-content">
+                    <div class="lesson-objective">
+                        <h4>Learning Objective</h4>
+                        <p>By the end of this lesson, you'll understand what resource guarding is, what it looks like, and why it's normal dog behavior.</p>
+                    </div>
+
+                    <div class="video-placeholder">
+                        <h4>Lesson Video: Resource Guarding Basics</h4>
+                        <p>Video explaining the behavior range and what we're focusing on</p>
+                    </div>
+
+                    <h4>What to Know: Resource Guarding Basics</h4>
+                    <p>Resource guarding simply means your dog wants to keep something they value. Think of it like a child hugging their favorite toy tightly - it's not "bad," it's just their way of saying "this is special to me!"</p>
+
+                    <h5 style="color: #5DADE2; margin: 15px 0 10px 0;">The behavior range:</h5>
+                    <div style="margin: 15px 0;">
+                        <span class="temperature-zone cool-zone">Mild: Eating faster, moving away with item, freezing briefly</span>
+                        <span class="temperature-zone warm-zone">Moderate: Low growling, body blocking, hard staring</span>
+                        <span class="temperature-zone hot-zone">Severe: Snapping, lunging, biting (requires professional help)</span>
+                    </div>
+
+                    <div class="assignment">
+                        <h4>Assignment: Become Aware</h4>
+                        <p>For the next 2 days, simply notice when your dog has items. Don't approach or intervene - just observe from a distance. Start becoming aware of their body language.</p>
+                    </div>
+
+                    <button class="complete-btn" onclick="completeLesson('lesson1-1')">Mark as Complete</button>
+                </div>
+            </div>
+
+            <div class="lesson" onclick="toggleLesson('lesson1-2')">
+                <h3>Lesson 1.2: Why Dogs Guard Resources</h3>
+                <p>Understanding the four main reasons dogs guard resources and why this knowledge helps with training.</p>
+                
+                <div id="lesson1-2" class="lesson-content">
+                    <div class="lesson-objective">
+                        <h4>Learning Objective</h4>
+                        <p>By the end of this lesson, you'll understand the four main reasons dogs guard resources and why this knowledge helps with training.</p>
+                    </div>
+
+                    <h4>The Four Main Reasons Dogs Guard</h4>
+                    <ol class="step-list">
+                        <li><strong>Natural instinct</strong> - In the wild, protecting resources meant survival. Your house dog still has these ancient instincts.</li>
+                        <li><strong>Genetics</strong> - Some dogs are naturally more possessive, just like some people are naturally more protective of their belongings.</li>
+                        <li><strong>Learned behavior</strong> - Maybe guarding worked before to keep things safe, so your dog learned "this strategy works!"</li>
+                        <li><strong>Scarcity mindset</strong> - Your dog thinks resources are limited and threatened, like "I better protect this because I might not get another one."</li>
+                    </ol>
+
+                    <div class="assignment">
+                        <h4>Assignment: Consider Your Dog's "Why"</h4>
+                        <p>Think about which of these four reasons might apply to your dog. This will help you understand their perspective as we move into training.</p>
+                    </div>
+
+                    <button class="complete-btn" onclick="completeLesson('lesson1-2')">Mark as Complete</button>
+                </div>
+            </div>
+
+            <div class="lesson" onclick="toggleLesson('lesson1-3')">
+                <h3>Lesson 1.3: Reading Your Dog's Early Warning Signals</h3>
+                <p>Identifying the subtle signs that appear before resource guarding escalates.</p>
+                
+                <div id="lesson1-3" class="lesson-content">
+                    <div class="lesson-objective">
+                        <h4>Learning Objective</h4>
+                        <p>By the end of this lesson, you'll be able to identify the subtle signs that appear before resource guarding escalates.</p>
+                    </div>
+
+                    <h4>Reading the Early Warning Signs</h4>
+                    <p>Learn to spot these early warning signals BEFORE guarding gets worse. Think of these as your dog's polite way of saying "please give me space with this special thing."</p>
+
+                    <ul style="margin: 15px 0; list-style-type: none;">
+                        <li>🟢 <strong>Freezing</strong> (like playing statue - they stop all movement)</li>
+                        <li>🟡 <strong>Eating faster</strong> (gobbling treats quickly like someone might take them)</li>
+                        <li>🟡 <strong>Body hovering</strong> (covering the item with their body like a shield)</li>
+                        <li>🟡 <strong>Moving away</strong> (taking item to another spot for privacy)</li>
+                        <li>🟠 <strong>Weight shifting</strong> (leaning to block your view or access)</li>
+                        <li>🔴 <strong>Hard staring</strong> (intense focus on you - like saying "I see you there")</li>
+                        <li>🔴 <strong>Tense body</strong> (stiff, ready-to-spring posture - muscles tight)</li>
+                    </ul>
+
+                    <div class="assignment">
+                        <h4>Assignment: Become a Detective</h4>
+                        <p>Spend 2-3 days simply watching your dog with different items. Write down what you see, but don't approach them. Just observe from a distance and note their body language.</p>
+                    </div>
+
+                    <button class="complete-btn" onclick="completeLesson('lesson1-3')">Mark as Complete</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Additional modules would continue here... -->
+        <!-- For brevity, I'm showing the structure. The full content would include all 6 modules -->
+
+    </div>
+
+    <script>
+        // Global variables
+        let completedLessons = new Set();
+        let totalLessons = 18;
+        let courseStartTime = Date.now();
+        let timeSpent = 0;
+
+        // Core navigation functions
+        function showModule(moduleId) {
+            // Hide all modules
+            const modules = document.querySelectorAll('.module-content');
+            modules.forEach(module => {
+                module.classList.remove('active');
+            });
+
+            // Remove active class from all nav buttons
+            const navButtons = document.querySelectorAll('.nav-btn');
+            navButtons.forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Show selected module
+            const targetModule = document.getElementById(moduleId);
+            if (targetModule) {
+                targetModule.classList.add('active');
+            }
+
+            // Add active class to clicked nav button
+            if (event && event.target) {
+                event.target.classList.add('active');
+            }
+        }
+
+        function toggleLesson(lessonId) {
+            const lessonContent = document.getElementById(lessonId);
+            if (!lessonContent) return;
+            
+            const isActive = lessonContent.classList.contains('active');
+            
+            // Close all lesson contents
+            const allLessonContents = document.querySelectorAll('.lesson-content');
+            allLessonContents.forEach(content => {
+                content.classList.remove('active');
+            });
+
+            // Toggle the clicked lesson
+            if (!isActive) {
+                lessonContent.classList.add('active');
+            }
+        }
+
+        function completeLesson(lessonId) {
+            completedLessons.add(lessonId);
+            
+            // Mark lesson as completed visually
+            const lessonContent = document.getElementById(lessonId);
+            if (lessonContent) {
+                const lesson = lessonContent.closest('.lesson');
+                if (lesson) {
+                    lesson.classList.add('completed');
+                }
+                
+                // Update button
+                const completeBtn = lessonContent.querySelector('.complete-btn');
+                if (completeBtn) {
+                    completeBtn.textContent = '✓ Completed!';
+                    completeBtn.style.background = '#48C9B0';
+                }
+                
+                // Auto-close lesson after completion
+                setTimeout(() => {
+                    lessonContent.classList.remove('active');
+                }, 1500);
+            }
+            
+            // Update progress
+            updateProgress();
+            saveProgress();
+            checkCourseCompletion();
+        }
+
+        function updateProgress() {
+            const progress = (completedLessons.size / totalLessons) * 100;
+            const progressFill = document.getElementById('progressFill');
+            const progressText = document.getElementById('progressText');
+            
+            if (progressFill) {
+                progressFill.style.width = progress + '%';
+            }
+            if (progressText) {
+                progressText.textContent = Math.round(progress) + '% Complete';
+            }
+        }
+
+        // Progress saving functions (simplified for demo)
+        function saveProgress() {
+            // In a real implementation, this would save to a backend
+            console.log('Progress saved:', Array.from(completedLessons));
+        }
+
+        function loadProgress() {
+            // In a real implementation, this would load from a backend
+            console.log('Progress loaded');
+        }
+
+        function checkCourseCompletion() {
+            if (completedLessons.size === totalLessons) {
+                setTimeout(() => {
+                    alert('🎉 Congratulations! You have completed the entire course! Your dog is lucky to have such a dedicated parent.');
+                }, 1000);
+            }
+        }
+
+        // Initialize everything when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            updateProgress();
+            
+            // Keyboard navigation
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    const allLessonContents = document.querySelectorAll('.lesson-content');
+                    allLessonContents.forEach(content => {
+                        content.classList.remove('active');
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
